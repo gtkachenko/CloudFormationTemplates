@@ -2,14 +2,31 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: for new account
 
 Parameters:
+  EnvironmentName:
+    Description: Choose env name that you need to create
+    Type: String
+    Default: "ApiProduction"
+    AllowedValues:
+    - "ApiProduction"
+    - "PortalProduction"
+    - "ApiStage"
+    - "PortalStage"
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
   SubnetId:
     Description: Name of en existing Subnet
-    Type: AWS::EC2::Subnet::Id
+    Type: List<AWS::EC2::Subnet::Id>
     ConstraintDescription: must be the name of an existing Subnet
+  VpcID:
+    Description: Name of an existing VPC
+    Type: List<AWS::EC2::VPC::Id>
+    ConstraintDescription: must be the name of an existing VPC
+  InstancePort:
+    Type: String
+    Description: Listen Port
+    Default: '80'
   InstanceType:
     Description: API EC2 instance type
     Type: String
@@ -46,7 +63,51 @@ Resources:
       ImageId: ami-922914f7
       KeyName: !Ref KeyName
       SubnetId: !Ref SubnetId
+      Monitoring: false
       SecurityGroups:
         - !ImportValue SSHSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+  ELBApiProd:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      SecurityGroups:
+        - !Ref AWSEBLoadBalancerSecurityGroup
+      CrossZone: true
+      Instances:
+      - Ref: APIProd
+      Listeners:
+      - LoadBalancerPort: '80'
+        InstancePort: '80'
+        Protocol: HTTP
+      HealthCheck:
+        Target:
+          Fn::Join:
+          - ''
+          - - 'HTTP:'
+            - !Ref InstancePort
+            - "/"
+        UnhealthyThreshold: '5'
+        Timeout: '5'
+        HealthyThreshold: '3'
+        Interval: '10'
+  AWSEBLoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Load Balancer Security Group
+      VpcId: !Ref VpcID
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: '80'
+          ToPort: '80'
+          IpProtocol: tcp
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: '80'
+          ToPort: '80'
+          IpProtocol: tcp
+
+
 
 
