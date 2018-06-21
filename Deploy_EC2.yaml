@@ -48,3 +48,4 @@ Resources:
       SubnetId: !Ref SubnetId
       SecurityGroups:
         - !ImportValue SSHSecurityGroup
+
