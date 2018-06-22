@@ -200,6 +200,8 @@ Outputs:
   VPC:
     Description: A reference to the created VPC
     Value: !Ref VPC
+    Export:
+      Name: ProductionVPC
 
   PublicSubnets:
     Description: A reference of the public subnets
@@ -212,10 +214,14 @@ Outputs:
   PublicSubnet1:
     Description: A reference to the public subnet in the 1st Availability Zone
     Value: !Ref PublicSubnet1
+    Export:
+      Name: PublicSubnet1
 
   PublicSubnet2:
     Description: A reference to the public subnet in the 2nd Availability Zone
     Value: !Ref PublicSubnet2
+    Export:
+      Name: PublicSubnet2
 
   PrivateSubnet1:
     Description: A reference to the public subnet in the 1st Availability Zone
@@ -227,5 +233,28 @@ Outputs:
     Description: A reference to the public subnet in the 1st Availability Zone
     Value: !Ref PrivateSubnet2
 
+  PublicSubnet1CIDR:
+    Description: A refetence to the public subnet CidrIP
+    Value: !Ref PublicSubnet1CIDR
+    Export:
+      Name: PublicSubnet1IpRange
+
+  PublicSubnet2CIDR:
+    Description: A refetence to the public subnet CidrIP
+    Value: !Ref PublicSubnet2CIDR
+    Export:
+      Name: PublicSubnet2IpRange
+
+  PrivateSubnet1CIDR:
+    Description: A refetence to the public subnet CidrIP
+    Value: !Ref PrivateSubnet1CIDR
+    Export:
+      Name: PrivateSubnet1IpRange
+
+  PrivateSubnet2CIDR:
+    Description: A refetence to the public subnet CidrIP
+    Value: !Ref PrivateSubnet2CIDR
+    Export:
+      Name: PrivateSubnet2IpRange
 
 
