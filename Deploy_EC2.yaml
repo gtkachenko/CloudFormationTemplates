@@ -14,14 +14,11 @@ Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: must be the name of an existing EC2 KeyPair.
-  SubnetId:
-    Description: Name of en existing Subnet
-    Type: List<AWS::EC2::Subnet::Id>
+    ConstraintDescription: must be the name of an existing EC2 Key
     ConstraintDescription: must be the name of an existing Subnet
   VpcID:
     Description: Name of an existing VPC
-    Type: List<AWS::EC2::VPC::Id>
+    Type: AWS::EC2::VPC::Id
     ConstraintDescription: must be the name of an existing VPC
   InstancePort:
     Type: String
@@ -56,57 +53,40 @@ Parameters:
     - m4.10xlarge
 
 Resources:
+  AIProdASG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enble SSH access via port 22
+      SecurityGroupIngress:
+      - CidrIp: 172.16.40.0/24
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+      - CidrIp: 172.16.30.0/24
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+      - CidrIp: 172.16.20.0/24
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+      - CidrIp: 172.16.10.0/24
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
   APIProd:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
       ImageId: ami-922914f7
       KeyName: !Ref KeyName
-      SubnetId: !Ref SubnetId
       Monitoring: false
       SecurityGroups:
-        - !ImportValue SSHSecurityGroup
+        - !Ref AIProdASG
       Tags:
         - Key: Name
           Value: !Ref EnvironmentName
-  ELBApiProd:
-    Type: AWS::ElasticLoadBalancing::LoadBalancer
-    Properties:
-      SecurityGroups:
-        - !Ref AWSEBLoadBalancerSecurityGroup
-      CrossZone: true
-      Instances:
-      - Ref: APIProd
-      Listeners:
-      - LoadBalancerPort: '80'
-        InstancePort: '80'
-        Protocol: HTTP
-      HealthCheck:
-        Target:
-          Fn::Join:
-          - ''
-          - - 'HTTP:'
-            - !Ref InstancePort
-            - "/"
-        UnhealthyThreshold: '5'
-        Timeout: '5'
-        HealthyThreshold: '3'
-        Interval: '10'
-  AWSEBLoadBalancerSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Load Balancer Security Group
-      VpcId: !Ref VpcID
-      SecurityGroupIngress:
-        - CidrIp: 0.0.0.0/0
-          FromPort: '80'
-          ToPort: '80'
-          IpProtocol: tcp
-      SecurityGroupEgress:
-        - CidrIp: 0.0.0.0/0
-          FromPort: '80'
-          ToPort: '80'
-          IpProtocol: tcp
+
 
 
 
