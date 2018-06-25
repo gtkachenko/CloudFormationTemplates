@@ -1,7 +1,102 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description:
+Description: Create AWS RDS instance fro Application porpose
+
+Parameters:
+  DBInstanceType:
+    Description: Choose an existing DB class
+    Type: String
+    Default: "db.t2.micro"
+    AllowedValues:
+    - "db.t2.micro"
+    - "db.t2.small"
+    - "db.t2.medium"
+    - "db.t2.large"
+    - "db.t2.xlarge"
+    - "db.t2.2xlarge"
+    - "db.m2.xlarge"
+    - "db.m2.2xlarge"
+    - "db.m2.4xlarge"
+    - "db.m4.large"
+    - "db.m4.xlarge"
+    - "db.m4.2xlarge"
+    - "db.m4.4xlarge"
+    - "db.m4.10xlarge"
+    - "db.m4.16xlarge"
+  DBEngine:
+    Description: Choose an existing DB Engine
+    Type: String
+    Default: "MySQL"
+    AllowedValues:
+    - "MySQL"
+    - "MariaDB"
+    - "PostgreSQL"
+    - "Amazon Aurora"
+    - "Oracle"
+    - "Microsoft SQL Server"
+  MasterUser:
+    Description: enter master username
+    Type: String
+    NoEcho: "true"
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  MasterPassword:
+    Description: enter master password
+    Type: String
+    NoEcho: "true"
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DbName:
+    Default: MyDatabase
+    Description: enter database name
+    Type: String
+    MinLength: '1'
+    MaxLength: '64'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  StorageSize:
+    Default: 5
+    Description: The size of the database (Gb)
+    Type: Number
+    MinValue: '5'
+    MaxValue: '1024'
+    ConstraintDescription: must be between 5 and 1024Gb.
+
 Resources:
-  DummyServer:
-    Type: "AWS::EC2::Instance"
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
     Properties:
-      ImageId: ""
+      AllocatedStorage: !Ref StorageSize
+      DBInstanceClass: !Ref DBInstanceType
+      DBName: !Ref DbName
+      Engine: !Ref DBEngine
+      EngineVersion: "5.6"
+      MasterUsername: !Ref MasterUser
+      MasterUserPassword: !Ref MasterPassword
+      MultiAZ: "false"
+      BackupRetentionPeriod: 7
+      PubliclyAccessible: "true"
+      DBParameterGroupName: !Ref 'RDSParameterGroup'
+    DeletionPolicy: "Snapshot"
+  RDSParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Family: MySQL5.6
+      Description: CloudFormation Sample Database Parameter Group
+      Parameters:
+        autocommit: '1'
+        general_log: '1'
+        old_passwords: '0'
+Outputs:
+  JDBCConnectionString:
+    Description: JDBC connection string for the database
+    Value: !Join ['', ['jdbc:mysql://', !GetAtt [RDSInstance, Endpoint.Address], ':', !GetAtt [
+          RDSInstance, Endpoint.Port], /, !Ref 'DbName']]
+
+
