@@ -5,23 +5,31 @@ Parameters:
   DBInstanceType:
     Description: Choose an existing DB class
     Type: String
-    Default: "db.t2.micro"
+    Default: db.t2.micro
     AllowedValues:
-    - "db.t2.micro"
-    - "db.t2.small"
-    - "db.t2.medium"
-    - "db.t2.large"
-    - "db.t2.xlarge"
-    - "db.t2.2xlarge"
-    - "db.m2.xlarge"
-    - "db.m2.2xlarge"
-    - "db.m2.4xlarge"
-    - "db.m4.large"
-    - "db.m4.xlarge"
-    - "db.m4.2xlarge"
-    - "db.m4.4xlarge"
-    - "db.m4.10xlarge"
-    - "db.m4.16xlarge"
+    - db.t1.micro
+    - db.t2.micro
+    - db.t2.small
+    - db.t2.medium
+    - db.t2.large
+    - db.m1.small
+    - db.m1.medium
+    - db.m1.large
+    - db.m1.xlarge
+    - db.m3.medium
+    - db.m3.large
+    - db.m3.xlarge
+    - db.m3.2xlarge
+    - db.m4.large
+    - db.m4.xlarge
+    - db.m4.2xlarge
+    - db.m4.4xlarge
+    - db.m4.10xlarge
+    - db.r3.large
+    - db.r3.xlarge
+    - db.r3.2xlarge
+    - db.r3.4xlarge
+    - db.r3.8xlarge
   DBEngine:
     Description: Choose an existing DB Engine
     Type: String
@@ -67,6 +75,24 @@ Parameters:
     MinValue: '5'
     MaxValue: '1024'
     ConstraintDescription: must be between 5 and 1024Gb.
+  BackupRetentionPeriod:
+    Description: Enter Backup Retention Period in Days.
+    Type: Number
+    Default: '7'
+  MultiAvailabilityZone:
+    Description: Enable Multi Availability Zones
+    Type: String
+    Default: 'false'
+    AllowedValues:
+    - 'true'
+    - 'false'
+  AutoMinorVersionUpgrade:
+    Description: Allow Automatic Minor Version Upgrades?
+    Type: String
+    Default: 'true'
+    AllowedValues:
+    - 'true'
+    - 'false'
 
 Resources:
   RDSInstance:
@@ -79,10 +105,12 @@ Resources:
       EngineVersion: "5.6"
       MasterUsername: !Ref MasterUser
       MasterUserPassword: !Ref MasterPassword
-      MultiAZ: "false"
-      BackupRetentionPeriod: 7
+      MultiAZ: !Ref MultiAvailabilityZone
+      BackupRetentionPeriod: !Ref BackupRetentionPeriod
       PubliclyAccessible: "true"
       DBParameterGroupName: !Ref 'RDSParameterGroup'
+      AllowMajorVersionUpgrade: 'false'
+      AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgrade
     DeletionPolicy: "Snapshot"
   RDSParameterGroup:
     Type: AWS::RDS::DBParameterGroup
