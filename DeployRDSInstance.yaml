@@ -83,6 +83,12 @@ Parameters:
     - 'false'
 
 Resources:
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: CloudFormation managed DB subnet group.
+      SubnetIds:
+        - !ImportValue PrivateSubnet1ID
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -100,6 +106,10 @@ Resources:
       DBParameterGroupName: !Ref 'RDSParameterGroup'
       AllowMajorVersionUpgrade: 'false'
       AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgrade
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      VPCSecurityGroups:
+        - !ImportValue DBSSecurityGroup
+
   RDSParameterGroup:
     Type: AWS::RDS::DBParameterGroup
     Properties:
