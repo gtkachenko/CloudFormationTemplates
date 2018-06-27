@@ -113,7 +113,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Load Balancer Security Group
-      VpcId: vpc-2f174e47
+      VpcId: !ImportValue ProductionVPC
       SecurityGroupIngress:
         - CidrIp: 0.0.0.0/0
           FromPort: '80'
@@ -124,6 +124,39 @@ Resources:
           FromPort: '80'
           ToPort: '80'
           IpProtocol: tcp
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS Instance Security Group
+      VpcId: !ImportValue ProductionVPC
+      SecurityGroupIngress:
+        - CidrIp: !ImportValue PrivateSubnet2IpRange
+          FromPort: '3306'
+          ToPort: '3306'
+          IpProtocol: tcp
+        - CidrIp: !ImportValue PrivateSubnet1IpRange
+          FromPort: '3306'
+          ToPort: '3306'
+          IpProtocol: tcp
+        - CidrIp: !ImportValue PublicSubnet2IpRange
+          FromPort: '3306'
+          ToPort: '3306'
+          IpProtocol: tcp
+        - CidrIp: !ImportValue PublicSubnet1IpRange
+          FromPort: '3306'
+          ToPort: '3306'
+          IpProtocol: tcp
+
+Outputs:
+  EC2Instance:
+    Description: A reference to the created EC2-instance
+    Value: !Ref APIProd
+  SecurityGroup:
+    Description: A reference to the created Security Group
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: DBSSecurityGroup
+
 
 
 
