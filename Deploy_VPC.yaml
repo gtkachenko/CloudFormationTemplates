@@ -232,6 +232,8 @@ Outputs:
   PrivateSubnet2:
     Description: A reference to the public subnet in the 1st Availability Zone
     Value: !Ref PrivateSubnet2
+    Export:
+      Name: PrivateSubnet2ID
 
   PublicSubnet1CIDR:
     Description: A refetence to the public subnet CidrIP
