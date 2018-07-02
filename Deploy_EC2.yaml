@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: for new account
+Description: Create EC2 instance from Base AMI image.
 
 Parameters:
   EnvironmentName:
