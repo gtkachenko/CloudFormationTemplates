@@ -15,14 +15,22 @@ Parameters:
   DBEngine:
     Description: Choose an existing DB Engine
     Type: String
-    Default: "MySQL"
+    Default: "mysql"
     AllowedValues:
-    - "MySQL"
-    - "MariaDB"
-    - "PostgreSQL"
-    - "Amazon Aurora"
-    - "Oracle"
-    - "Microsoft SQL Server"
+    - "aurora"
+    - "aurora-mysql"
+    - "aurora-postgresql"
+    - "mariadb"
+    - "mysql"
+    - "oracle-ee"
+    - "oracle-se2"
+    - "oracle-se1"
+    - "oracle-se"
+    - "postgres"
+    - "sqlserver-ee"
+    - "sqlserver-se"
+    - "sqlserver-ex"
+    - "sqlserver-web"
   DBName:
     Default: MyDatabase
     Description: The database name
@@ -63,6 +71,14 @@ Parameters:
     MinValue: '20'
     MaxValue: '1024'
     ConstraintDescription: must be between 20 and 1024Gb.
+  StorageType:
+    Description: Choose an existing storage type
+    Type: String
+    Default: 'gp2'
+    AllowedValues:
+    - 'gp2'
+    - 'io1'
+    - 'standart'
   BackupRetentionPeriod:
     Description: Enter Backup Retention Period in Days.
     Type: Number
@@ -88,7 +104,13 @@ Parameters:
     AllowedValues:
     - 'true'
     - 'false'
-
+  Encription:
+    Description: Encription RDS storage
+    Type: String
+    Default: 'false'
+    AllowedValues:
+    - 'true'
+    - 'false'
 Resources:
   DbSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -102,6 +124,8 @@ Resources:
     Properties:
       DBInstanceIdentifier: !Ref DBInstanceIdentifier
       AllocatedStorage: !Ref StorageSize
+      StorageType: !Ref StorageType
+      StorageEncrypted: !Ref Encription
       DBInstanceClass: !Ref DBInstanceType
       DBName: !Ref 'DBName'
       Engine: !Ref 'DBEngine'
