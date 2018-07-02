@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Restoring RDS from latest shapshot
+
+Parameters:
+  DBInstanceType:
+    Description: Choose an existing DB class
+    Type: String
+    Default: db.t2.micro
+  DBInstanceIdentifier:
+    Description: name of RDS Instance
+    Type: String
+    MinLength: '1'
+    MaxLength: '41'
+    AllowedPattern: '[a-zA-Z0-9]+'
+    ConstraintDescription: must contain only alphanumeric characters.
+  StorageType:
+    Description: Choose an existing storage type
+    Type: String
+    Default: 'gp2'
+    AllowedValues:
+    - 'gp2'
+    - 'io1'
+    - 'standart'
+  PubclicAccess:
+    Description: Allow access from outside AWS VPC
+    Type: String
+    Default: 'true'
+    AllowedValues:
+    - 'true'
+    - 'false'
+  AutoMinorVersionUpgrade:
+    Description: Allow Automatic Minor Version Upgrades?
+    Type: String
+    Default: 'true'
+    AllowedValues:
+    - 'true'
+    - 'false'
+  MultiAvailabilityZone:
+    Description: Enable Multi Availability Zones
+    Type: String
+    Default: 'false'
+    AllowedValues:
+    - 'true'
+    - 'false'
+
+Resources:
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: CloudFormation managed DB subnet group.
+      SubnetIds:
+        - subnet-c33d1ab5
+        - subnet-da54fce6
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Ref DBInstanceIdentifier
+      DBInstanceClass: !Ref DBInstanceType
+      StorageType: !Ref StorageType
+      AvailabilityZone: us-east-1a
+      MultiAZ: !Ref MultiAvailabilityZone
+      AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgrade
+      PubliclyAccessible: !Ref PubclicAccess
+      DBSnapshotIdentifier: rds:ssportal-pro-2018-07-02-07-12
+      VPCSecurityGroups:
+        - sg-ab2a84e3
+
+
