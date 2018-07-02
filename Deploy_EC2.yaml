@@ -78,6 +78,7 @@ Resources:
       KeyName: !Ref KeyName
       Monitoring: false
       SubnetId: !ImportValue PrivateSubnet1ID
+      IamInstanceProfile: S3-Admin-Access
       SecurityGroupIds:
         - !Ref AIProdASG
       Tags:
