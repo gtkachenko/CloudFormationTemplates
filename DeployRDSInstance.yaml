@@ -81,6 +81,13 @@ Parameters:
     AllowedValues:
     - 'true'
     - 'false'
+  PubclicAccess:
+    Description: Allow access from outside AWS VPC
+    Type: String
+    Default: 'true'
+    AllowedValues:
+    - 'true'
+    - 'false'
 
 Resources:
   DbSubnetGroup:
@@ -89,6 +96,7 @@ Resources:
       DBSubnetGroupDescription: CloudFormation managed DB subnet group.
       SubnetIds:
         - !ImportValue PrivateSubnet1ID
+        - !ImportValue PrivateSubnet2ID
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -102,7 +110,7 @@ Resources:
       MasterUserPassword: !Ref 'DBPassword'
       MultiAZ: !Ref MultiAvailabilityZone
       BackupRetentionPeriod: !Ref BackupRetentionPeriod
-      PubliclyAccessible: "true"
+      PubliclyAccessible: !Ref PubclicAccess
       DBParameterGroupName: !Ref 'RDSParameterGroup'
       AllowMajorVersionUpgrade: 'false'
       AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgrade
