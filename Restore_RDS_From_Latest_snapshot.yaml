@@ -1,11 +1,37 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Restoring RDS from latest shapshot
+Description: Restoring AWS RDS for local development from latest prod shapshot
 
 Parameters:
   DBInstanceType:
     Description: Choose an existing DB class
     Type: String
     Default: db.t2.micro
+  DBName:
+    Default: MyDatabase
+    Description: The database name
+    Type: String
+    MinLength: '1'
+    MaxLength: '64'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBUser:
+    NoEcho: 'true'
+    Description: The database admin account username
+    Type: String
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBPassword:
+    NoEcho: 'true'
+    Description: The database admin account password
+    Type: String
+    MinLength: '1'
+    MaxLength: '41'
+    AllowedPattern: '[a-zA-Z0-9]+'
+    ConstraintDescription: must contain only alphanumeric characters.
   DBInstanceIdentifier:
     Description: name of RDS Instance
     Type: String
@@ -57,12 +83,17 @@ Resources:
       DBInstanceIdentifier: !Ref DBInstanceIdentifier
       DBInstanceClass: !Ref DBInstanceType
       StorageType: !Ref StorageType
-      AvailabilityZone: us-east-1a
       MultiAZ: !Ref MultiAvailabilityZone
+      DBName: !Ref 'DBName'
+      MasterUsername: !Ref 'DBUser'
+      MasterUserPassword: !Ref 'DBPassword'
       AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgrade
       PubliclyAccessible: !Ref PubclicAccess
       DBSnapshotIdentifier: rds:ssportal-pro-2018-07-02-07-12
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      BackupRetentionPeriod: 1
       VPCSecurityGroups:
         - sg-ab2a84e3
+    DeletionPolicy: Delete
 
 
