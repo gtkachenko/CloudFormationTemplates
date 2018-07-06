@@ -6,15 +6,6 @@ Parameters:
     Description: Choose an existing DB class
     Type: String
     Default: db.t2.micro
-  DBName:
-    Default: MyDatabase
-    Description: The database name
-    Type: String
-    MinLength: '1'
-    MaxLength: '64'
-    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    ConstraintDescription: must begin with a letter and contain only alphanumeric
-      characters.
   DBUser:
     NoEcho: 'true'
     Description: The database admin account username
@@ -61,39 +52,40 @@ Parameters:
     AllowedValues:
     - 'true'
     - 'false'
-  MultiAvailabilityZone:
+  MultiAZ:
     Description: Enable Multi Availability Zones
     Type: String
     Default: 'false'
     AllowedValues:
     - 'true'
     - 'false'
+  DBSubnetGroupName:
+    Description: SubnetGroupName
+    Type: String
+  SnapshotIdent:
+    Description: The latest shapshot of prod DB
+    Type: String
+  VpcSG:
+    Description: VPC SG
+    Type: String
 
 Resources:
-  DbSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: CloudFormation managed DB subnet group.
-      SubnetIds:
-        - subnet-c33d1ab5
-        - subnet-da54fce6
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: !Ref DBInstanceIdentifier
       DBInstanceClass: !Ref DBInstanceType
       StorageType: !Ref StorageType
-      MultiAZ: !Ref MultiAvailabilityZone
-      DBName: !Ref 'DBName'
+      MultiAZ: !Ref MultiAZ
       MasterUsername: !Ref 'DBUser'
       MasterUserPassword: !Ref 'DBPassword'
       AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgrade
       PubliclyAccessible: !Ref PubclicAccess
-      DBSnapshotIdentifier: rds:ssportal-pro-2018-07-02-07-12
-      DBSubnetGroupName: !Ref DbSubnetGroup
+      DBSnapshotIdentifier: !Ref SnapshotIdent
+      DBSubnetGroupName: !Ref DBSubnetGroupName
       BackupRetentionPeriod: 1
       VPCSecurityGroups:
-        - sg-ab2a84e3
+        - !Ref VpcSG
     DeletionPolicy: Delete
 
 
